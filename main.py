@@ -4,9 +4,9 @@ from urllib.parse import urlparse
 import tldextract
 
 def get_domain(url):
-    parsed_uri = urlparse(url)
-    domain = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
-    return domain
+    scheme = urlparse(url).scheme
+    result = tldextract.extract(url)
+    return f"{scheme}://{result.domain}.{result.suffix}"
 
 def search_bing(query, num_results):
     url = 'https://www.bing.com/search'
@@ -14,7 +14,7 @@ def search_bing(query, num_results):
     response = requests.get(url, params=params)
     soup = BeautifulSoup(response.text, 'html.parser')
     links = soup.find_all('a')
-    urls = [link.get('href') for link in links]
+    urls = [link.get('href') for link in links if link.get('href') and link.get('href').startswith('http')]
     return urls
 
 def save_to_file(urls, filename):
