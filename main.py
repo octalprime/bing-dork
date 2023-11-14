@@ -10,12 +10,15 @@ def get_domain(url):
 
 def search_bing(query, num_results):
     url = 'https://www.bing.com/search'
-    params = {'q': query, 'count': num_results}
-    response = requests.get(url, params=params)
-    soup = BeautifulSoup(response.text, 'html.parser')
-    links = soup.find_all('a')
-    urls = [link.get('href') for link in links if link.get('href') and link.get('href').startswith('http')]
-    return urls
+    urls = []
+    for i in range(0, num_results, 25):
+        params = {'q': query, 'first': i+1}
+        response = requests.get(url, params=params)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        links = soup.find_all('a')
+        page_urls = [link.get('href') for link in links if link.get('href') and link.get('href').startswith('http')]
+        urls.extend(page_urls)
+    return urls[:num_results]
 
 def save_to_file(urls, filename):
     with open(filename, 'w') as f:
